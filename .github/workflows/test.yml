@@ -31,19 +31,25 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - id: set-matrix
+      - name: Set matrix
+        id: set-matrix
         run: |
-          python_json=$(echo $PYTHON_VERSION | sed 's/;/\\",\\"/g')
-          torch_json=$(echo $TORCH_VERSION | sed 's/;/\\",\\"/g')
-          cuda_json=$(echo $CUDA_VERSION | sed 's/;/\\",\\"/g')
-
-          echo "matrix={\
-          \"python_ver\": [\"$cuda_json\"],\
-          \"torch_ver\": [\"$torch_json\"],\
-          \"cuda_ver\": [\"$python_json\"],\
-          \"include\":[],\
-          \"exclude\":[]\
-          }" >> $GITHUB_OUTPUT
+          python <<EOF
+          import os, json
+          py_ver = os.getenv('PYTHON_VERSION').split(';')
+          torch_versions = os.getenv('TORCH_VERSION').split(';')
+          cuda_versions = os.getenv('CUDA_VERSION').split(';')
+          matrix = {
+              "include": [{
+                      "python_ver": py_ver if py_ver.__len__() >= 0 else py_ver[0],
+                      "torch_ver": torch_versions,
+                      "cuda_ver": cuda_versions
+              }],
+              "exclude": []
+          }
+          with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+              f.write(f"matrix={json.dumps(matrix)}\n")
+          EOF
         shell: bash
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
@@ -62,19 +68,20 @@ jobs:
           echo "Matrix to json: ${{ toJson(matrix) }}"
           echo "Matrix:${{ matrix }}"
         
-  # job3:
-  #   name: Job3 ${{ matrix.project }}-${{ matrix.config }}
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix: 
-  #       project: ["A", "B"]
-  #       config: ["C", "D"]
-  #       include:
-  #         - project: "A"
-  #           config: "C"
-  #       exclude:
-  #         - project: "A"
-  #           config: "D"
-  #   steps:
-  #     - run: |
-  #         echo "Matrix: ${{ toJson(matrix) }}"
+  job3:
+    name: Job3 ${{ matrix.project }}-${{ matrix.config }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        project: ["A", "B"]
+        config: ["C", "D"]
+        include:
+          - project: "A"
+            config: "C"
+        exclude:
+          - project: "A"
+            config: "D"
+    steps:
+      - run: |
+          echo "Matrix: ${{ toJson(matrix) }}"
+          echo "Matrix:${{ matrix }}"
