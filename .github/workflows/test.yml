@@ -35,7 +35,8 @@ jobs:
         id: parse_versions
         run: |
           echo "matrix={\"include\":[{\"project\":\"foo\"}],\"python-version\":[\"3.10\"],\"torch-version\":[\"2.1.2\",\"2.4.0\"],\"cuda-version\":[\"11.8.0\",\"12.1.0\"]}"
-          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+          echo ::set-output name=branch::${matrix}
+          echo "${matrix}"
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
           TORCH_VERSION: ${{ inputs.torch_version }}  
@@ -52,6 +53,6 @@ jobs:
 
       - name: Debug matrix
         run: |
+          echo "Matrix: ${{ needs.set_ver.steps.parse_versions.outputs.matrix }}"
           echo "Matrix: ${{ needs.set_ver.parse_versions.outputs.matrix }}"
           echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
-          echo "Matrix: ${{ needs.set_ver.steps.parse_versions.outputs.matrix }}"

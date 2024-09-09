@@ -45,8 +45,8 @@ jobs:
           cuda_ver_json=[\\\"$cuda_json\\\"]
           
           echo "matrix={\"python-version\":$python_ver_json, \"torch-version\":$torch_ver_json, \"cuda-version\":$cuda_ver_json}"
-          echo "$matrix" >> $GITHUB_OUTPUT
-          echo "$matrix"
+          echo ::set-output name=branch::${matrix}
+          echo "${matrix}"
         shell: bash
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
