@@ -1,0 +1,142 @@
+# This workflow will upload a Python Package to Release asset
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: Manual Build Wheel Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'branch name or version tag or commit hash: main / v0.0.1 / acdefg'
+        default: 'main'
+        required: true
+        type: string
+      python_version:
+        description: 'python_version: multiple versions separated by ;'
+        default: '3.10'
+        required: true
+        type: string
+      torch_version:
+        description: 'torch_version: multiple versions separated by ;'
+        default: '2.1.2;2.4.0'
+        required: true
+        type: string
+      cuda_version:
+        description: 'cuda_version: multiple versions separated by ;'
+        default: '11.8.0;12.1.0'
+        required: true
+        type: string
+
+jobs:
+  set-matrix:
+    runs-on: [ubuntu-latest]
+    outputs:
+      python-versions: ${{ fromJSON(steps.parse_versions.outputs.python_ver) }}
+      torch-versions: ${{ fromJSON(steps.parse_versions.outputs.torch_ver) }}
+      cuda-versions: ${{ fromJSON(steps.parse_versions.outputs.cuda_ver) }}
+    
+    steps:
+      - name: Parse torch versions
+        id: parse_versions
+        run: |
+          torch_json=$(echo $TORCH_VERSION | sed 's/;/", "/g')
+          cuda_json=$(echo $CUDA_VERSION | sed 's/;/", "/g')
+          python_json=$(echo $PYTHON_VERSION | sed 's/;/", "/g')
+
+          echo "torch_ver=[\"$torch_json\"]" >> $GITHUB_OUTPUT
+          echo "cuda_ver=[\"$cuda_json\"]" >> $GITHUB_OUTPUT
+          echo "python_ver=[\"$python_json\"]" >> $GITHUB_OUTPUT
+        env:
+          PYTHON_VERSION: ${{ inputs.python_version }}
+          TORCH_VERSION: ${{ inputs.torch_version }}  
+          CUDA_VERSION: ${{ inputs.cuda_version }}
+  
+  wheel:
+    name: ${{ matrix.os }} py${{ matrix.python-version }}-pt${{ matrix.torch-version }}+cu${{ matrix.cuda-version }}
+    needs: set-matrix
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+          os: [ubuntu-24.04]
+          python-version: ${{ needs.set-matrix.outputs.python_ver }}
+          torch-version: ${{ needs.set-matrix.outputs.torch_ver }}
+          cuda-version: ${{ needs.set-matrix.outputs.cuda_ver }}
+          # include:
+          exclude:
+            - torch-version: '2.4.0'
+              cuda-version: '11.8.0'
+            - torch-version: '2.1.2'
+              cuda-version: '12.1.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install CUDA ${{ matrix.cuda-version }}
+        uses: Jimver/cuda-toolkit@v0.2.16
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda-version }}
+          linux-local-args: '["--toolkit"]'
+          method: 'network' 
+          # "local" or "network" 
+
+      - name: Format CUDA version
+        run: |
+          cuda_ver=$(echo ${{ matrix.cuda-version }} | sed 's/\.//g' | sed 's/0//g')
+          echo "Format CUDA version is ${cuda_ver}"
+          echo "cuda_ver=${cuda_ver}" >> $GITHUB_ENV
+        shell: bash
+
+      - run: echo "Installed cuda version is ${{steps.cuda-toolkit.outputs.cuda}}"
+      - run: echo "Cuda install location ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+      - run: nvcc -V
+
+      - name: Install PyTorch ${{ matrix.torch-version }}+cu${{ env.cuda_ver }}
+        run: |
+          pip config set global.index-url https://pypi.org/simple
+          pip install setuptools==68.0.0 ninja packaging wheel numpy
+          pip install --no-cache-dir torch==${{ matrix.torch-version }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_ver }}
+          python --version
+          python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print (cpp_extension.CUDA_HOME)"
+        shell: bash
+
+      - name: Build wheel
+        run: |
+          export FORCE_CUDA="1"
+          export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
+          export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+          pip install wheel
+          python setup.py bdist_wheel --dist-dir=dist
+          wheel_name=$(ls dist/*whl | xargs -n 1 basename ")
+          ls dist/*whl | xargs -I {} mv {} ${wheel_name}
+          echo "wheel_name=${wheel_name}" >> $GITHUB_ENV
+        shell: bash
+      
+      - name: print wheel name
+        run: |
+          ls dist/*whl 
+          echo "wheel_name ${{ env.wheel_name }}"
+
+      - name: Get tag from GITHUB_REF
+        id: tag
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          echo "Release tag: $tag"
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.release_tag }}-${{ inputs.version }}-${{ matrix.python-version }}-${{ matrix.torch-version }}-${{ env.cuda_ver }}
+          files: |
+            ${{ env.wheel_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    

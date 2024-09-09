@@ -1,10 +1,6 @@
 # Copyright (c) 2023, Tri Dao.
 
-import os
-from typing import Optional, Union
-
 import torch
-import torch.nn as nn
 # We need to import the CUDA kernels after importing torch
 import flash_attn_v100_cuda as flash_attn_cuda
 

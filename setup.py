@@ -1,20 +1,14 @@
 # Copyright (c) 2023, Tri Dao.
 
 import sys
-import warnings
 import os
-import re
-import ast
+import warnings
 from pathlib import Path
 from packaging.version import parse, Version
 import platform
 
 from setuptools import setup, find_packages
 import subprocess
-
-import urllib.request
-import urllib.error
-from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 import torch
 from torch.utils.cpp_extension import (
@@ -143,7 +137,7 @@ ext_modules.append(
         },
         include_dirs=[
             Path(this_dir) / "include",
-            "/home/user/cutlass/include",
+            Path(this_dir) / "cutlass/include",
         ],
     )
 )
