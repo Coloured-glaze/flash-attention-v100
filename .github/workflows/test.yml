@@ -24,6 +24,11 @@ on:
         default: '11.8.0;12.1.0'
         required: true
         type: string
+      os_version:
+        description: 'os_version: multiple versions separated by ,'
+        default: 'ubuntu-24.04'
+        required: true
+        type: string
 
 jobs:
   set_ver:
@@ -70,29 +75,30 @@ jobs:
   job2:
     name: Job2 ${{ matrix.python_ver }}-${{ matrix.torch_ver }}-${{ matrix.cuda_ver }}
     needs: set_ver
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os_version }}
     strategy:
       matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
     steps:
-      - run: |
+      - name: Print matrix
+        run: |
           echo "Matrix json :${{ needs.set_ver.outputs.matrix }}"
           echo "Matrix to json: ${{ toJson(matrix) }}"
           echo "Matrix:${{ matrix }}"
         
-  job3:
-    name: Job3 ${{ matrix.project }}-${{ matrix.config }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        project: ["A", "B"]
-        config: ["C", "D"]
-        include:
-          - project: "A"
-            config: "C"
-        exclude:
-          - project: "A"
-            config: "D"
-    steps:
-      - run: |
-          echo "Matrix: ${{ toJson(matrix) }}"
-          echo "Matrix:${{ matrix }}"
+  # job3:
+  #   name: Job3 ${{ matrix.project }}-${{ matrix.config }}
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix: 
+  #       project: ["A", "B"]
+  #       config: ["C", "D"]
+  #       include:
+  #         - project: "A"
+  #           config: "C"
+  #       exclude:
+  #         - project: "A"
+  #           config: "D"
+  #   steps:
+  #     - run: |
+  #         echo "Matrix: ${{ toJson(matrix) }}"
+  #         echo "Matrix:${{ matrix }}"
