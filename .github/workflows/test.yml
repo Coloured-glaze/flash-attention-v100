@@ -28,21 +28,24 @@ on:
 jobs:
   set_ver:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.parse_versions.outputs.matrix }}
     steps:
       - name: Parse versions
         id: parse_versions
         run: |
-          echo "matrix={\"include\":[{\"project\":\"foo\"}],\"python-version\":[\"3.10\"],\"torch-version\":[\"2.1.2\",\"2.4.0\"],\"cuda-version\":[\"11.8.0\",\"12.1.0\"]}"
-          echo matrix=${matrix} >> "$GITHUB_ENV"
+          echo "matrix={\"include\":[{\"project\":\"foo\"}]}"
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
           echo "${matrix}"
         env:
-          PYTHON_VERSION: ${{ inputs.python_version }}
-          TORCH_VERSION: ${{ inputs.torch_version }}  
-          CUDA_VERSION: ${{ inputs.cuda_version }}
+          matrix: "{\"include\":[{\"project\":\"foo\"}]}"
 
   wheel:
-    runs-on: ubuntu-latest
     needs: set_ver
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.set_ver.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,5 +54,4 @@ jobs:
 
       - name: Debug matrix
         run: |
-          echo "Matrix: ${{ env.matrix }}"
-          echo "Matrix: ${{ needs.set_ver.env.matrix }}"
+          echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
