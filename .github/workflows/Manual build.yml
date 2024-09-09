@@ -75,7 +75,7 @@ jobs:
           CUDA_VERSION: ${{ inputs.cuda_version }}
         
   wheel:
-    name: Build wheel ${{ matrix.python_ver }}-${{ matrix.torch_ver }}-${{ matrix.cuda_ver }}
+    name: Build wheel ${{ inputs.os_version }}-py${{ matrix.python_ver }}-th${{ matrix.torch_ver }}-cu${{ matrix.cuda_ver }}
     needs: set_ver
     runs-on: ${{ inputs.os_version }}
 
@@ -132,8 +132,10 @@ jobs:
           export FORCE_CUDA="1"
           export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-          pip install wheel
+
+          pip install wheel numpy==2.1.1 pybind11>=2.12
           python setup.py bdist_wheel --dist-dir=dist
+          
           wheel_name=$(ls dist/*whl | xargs -n 1 basename ")
           ls dist/*whl | xargs -I {} mv {} ${wheel_name}
           echo "wheel_name=${wheel_name}" >> $GITHUB_ENV
