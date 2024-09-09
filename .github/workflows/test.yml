@@ -26,26 +26,17 @@ on:
         type: string
 
 jobs:
-  set_ver:
+  job1:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.parse_versions.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Parse versions
-        id: parse_versions
-        run: |
-          echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
-          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
-          echo "${matrix}"
-
-  wheel:
-    name: ${{ matrix.project }}
-    needs: set_ver
+      - id: set-matrix
+        run: echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
+  job2:
+    needs: job1
     runs-on: ubuntu-latest
-
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.matrix) }}
-
     steps:
-      - name: Debug matrix
-        run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
+      - run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
