@@ -26,41 +26,42 @@ on:
         type: string
 
 jobs:
-  # set_ver:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     matrix: ${{ steps.set-matrix.outputs.matrix }}
-  #   steps:
-  #     - id: set-matrix
-  #       run: |
-  #         python_json=$(echo $PYTHON_VERSION | sed 's/;/\\",\\"/g')
-  #         torch_json=$(echo $TORCH_VERSION | sed 's/;/\\",\\"/g')
-  #         cuda_json=$(echo $CUDA_VERSION | sed 's/;/\\",\\"/g')
+  set_ver:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          python_json=$(echo $PYTHON_VERSION | sed 's/;/\\",\\"/g')
+          torch_json=$(echo $TORCH_VERSION | sed 's/;/\\",\\"/g')
+          cuda_json=$(echo $CUDA_VERSION | sed 's/;/\\",\\"/g')
 
-  #         python_ver_json=[\"$python_json\"]
-  #         torch_ver_json=[\"$torch_json\"]
-  #         cuda_ver_json=[\"$cuda_json\"]
+          python_ver_json=[\"$python_json\"]
+          torch_ver_json=[\"$torch_json\"]
+          cuda_ver_json=[\"$cuda_json\"]
 
-  #         echo "matrix={\
-  #         \"include\":[\
-  #         {\"py_ver\": [$python_ver_json]},\
-  #         {\"torch_ver\": [$torch_ver_json]},\
-  #         {\"cuda_ver\": [$cuda_ver_json]}\
-  #         ]}" >> $GITHUB_OUTPUT
-  #       shell: bash
-  #       env:
-  #         PYTHON_VERSION: ${{ inputs.python_version }}
-  #         TORCH_VERSION: ${{ inputs.torch_version }}  
-  #         CUDA_VERSION: ${{ inputs.cuda_version }}
+          echo "matrix={\
+          \"py_ver\": [$python_ver_json],\
+          \"torch_ver\": [$torch_ver_json],\
+          \"cuda_ver\": [$cuda_ver_json],\
+          \"include\":[],\
+          \"exclude\":[]\
+          }" >> $GITHUB_OUTPUT
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ inputs.python_version }}
+          TORCH_VERSION: ${{ inputs.torch_version }}  
+          CUDA_VERSION: ${{ inputs.cuda_version }}
         
-  # job2:
-  #   name: Job2 ${{ matrix.project }}-${{ matrix.config }}
-  #   needs: set_ver
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
-  #   steps:
-  #     - run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
+  job2:
+    name: Job2 ${{ matrix.py_ver }}-${{ matrix.torch_ver }}-${{ matrix.cuda_ver }}
+    needs: set_ver
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
+    steps:
+      - run: echo "Matrix:${{ matrix }}"
         
   job3:
     name: Job3 ${{ matrix.project }}-${{ matrix.config }}
