@@ -115,9 +115,12 @@ jobs:
           echo "Format CUDA version is ${cuda_ver}"
           echo "cuda_fmt_ver=${cuda_ver}" >> $GITHUB_ENV
 
-      - run: echo "Installed cuda version is ${{steps.cuda-toolkit.outputs.cuda}}"
-      - run: echo "Cuda install location ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-      - run: nvcc -V
+      - name: Print CUDA version
+        run: |
+          echo "Installed cuda version is ${{steps.cuda-toolkit.outputs.cuda}}"
+          echo "Cuda install location ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+          nvcc -V
+          gcc --version
 
       - name: Install PyTorch ${{ matrix.torch_ver }}+cu${{ env.cuda_fmt_ver }}
         run: |
@@ -135,7 +138,7 @@ jobs:
 
           pip install wheel numpy==2.1.1 pybind11>=2.12
           python setup.py bdist_wheel --dist-dir=dist
-          
+
           wheel_name=$(ls dist/*whl | xargs -n 1 basename ")
           ls dist/*whl | xargs -I {} mv {} ${wheel_name}
           echo "wheel_name=${wheel_name}" >> $GITHUB_ENV
