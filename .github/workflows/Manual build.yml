@@ -99,15 +99,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_ver }}
-      
-      - name: Install CUDA ${{ matrix.cuda_ver }}
-        uses: Coloured-glaze/cuda-toolkit@dev
-        id: cuda-toolkit
-        with:
-          cuda: ${{ matrix.cuda_ver }}
-          linux-local-args: '["--toolkit"]'
-          method: 'network' 
-          # "local" or "network" 
 
       - name: Format CUDA version
         run: |
@@ -122,6 +113,15 @@ jobs:
           pip install --no-cache-dir torch==${{ matrix.torch_ver }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_fmt_ver }}
           python --version
           python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print(cpp_extension.CUDA_HOME)"
+      
+      - name: Install CUDA ${{ matrix.cuda_ver }}
+        uses: Coloured-glaze/cuda-toolkit@dev
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda_ver }}
+          linux-local-args: '["--toolkit"]'
+          method: 'network' 
+          # "local" or "network" 
 
       - name: Print CUDA version
         run: |
