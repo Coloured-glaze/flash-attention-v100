@@ -147,8 +147,8 @@ jobs:
         id: tag
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          echo "Release tag: $tag"
-          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${tag}" >> "$GITHUB_ENV"
+          echo "Release tag:${tag}"
 
       - uses: softprops/action-gh-release@v2
         with:
