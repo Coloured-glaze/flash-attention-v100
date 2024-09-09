@@ -34,22 +34,27 @@ jobs:
       python-versions: ${{ steps.parse_versions.outputs.python_ver }} 
       torch-versions: ${{ steps.parse_versions.outputs.torch_ver }} 
       cuda-versions: ${{ steps.parse_versions.outputs.cuda_ver }}  
-
+        
     steps:
       - name: Parse versions
         id: parse_versions
         run: |
+          python_json=$(echo $PYTHON_VERSION | sed 's/;/", "/g')
           torch_json=$(echo $TORCH_VERSION | sed 's/;/", "/g')
           cuda_json=$(echo $CUDA_VERSION | sed 's/;/", "/g')
-          python_json=$(echo $PYTHON_VERSION | sed 's/;/", "/g')
 
+          echo "python_ver=[\"$python_json\"]" >> $GITHUB_OUTPUT
           echo "torch_ver=[\"$torch_json\"]" >> $GITHUB_OUTPUT
           echo "cuda_ver=[\"$cuda_json\"]" >> $GITHUB_OUTPUT
-          echo "python_ver=[\"$python_json\"]" >> $GITHUB_OUTPUT
+
+          echo "python_ver=[\"$python_json\"]"
+          echo "torch_ver=[\"$torch_json\"]"
+          echo "cuda_ver=[\"$cuda_json\"]"
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
           TORCH_VERSION: ${{ inputs.torch_version }}  
           CUDA_VERSION: ${{ inputs.cuda_version }}
+
   wheel:
     name: ${{ matrix.os }} py${{ matrix.python-version }}-pt${{ matrix.torch-version }}+cu${{ matrix.cuda-version }}
     needs: set-matrix
