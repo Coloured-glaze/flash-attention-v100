@@ -39,13 +39,13 @@ jobs:
           py_version = os.getenv("PYTHON_VERSION").split(";")
           torch_versions = os.getenv("TORCH_VERSION").split(";")
           cuda_versions = os.getenv("CUDA_VERSION").split(";")
-          tmp_list = []
+          exclude_list = []
           for py_v in py_version:
               for torch_v in torch_versions:
                   for cuda_v in cuda_versions:
-                      if (torch_v != "2.4.0" and cuda_v != "11.8.0") and \
-                      (torch_v != "2.1.2" or cuda_v != "12.1.0"):
-                          tmp_list.append({
+                      if (torch_v == "2.4.0" and cuda_v == "11.8.0") or \
+                        (torch_v == "2.1.2" and cuda_v == "12.1.0"):
+                          exclude_list.append({
                                   "python_ver": py_v,
                                   "torch_ver": torch_v,
                                   "cuda_ver": cuda_v,
@@ -54,8 +54,8 @@ jobs:
               "python_ver" : py_version,
               "torch_ver" : torch_versions,
               "cuda_ver" : cuda_versions,
-              "include": tmp_list,
-              "exclude": [],
+              "include": [],
+              "exclude": exclude_list,
           }
           with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
               f.write(f"matrix={json.dumps(matrix)}\n")
