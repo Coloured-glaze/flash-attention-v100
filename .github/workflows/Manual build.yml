@@ -142,9 +142,6 @@ jobs:
           echo "wheel_name=${wheel_name}" >> "$GITHUB_ENV"
           echo "wheel_name ${wheel_name}"
         shell: bash
-      
-      - name: print wheel name
-        run: |
 
       - name: Get tag from GITHUB_REF
         id: tag
