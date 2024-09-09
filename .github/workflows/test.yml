@@ -63,19 +63,19 @@ jobs:
     steps:
       - run: echo "Matrix:${{ matrix }}"
         
-  job3:
-    name: Job3 ${{ matrix.project }}-${{ matrix.config }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        project: ["A", "B"]
-        config: ["C", "D"]
-        include:
-          - project: "A"
-            config: "C"
-        exclude:
-          - project: "A"
-            config: "D"
-    steps:
-      - run: |
-          echo "Matrix: ${{ toJson(matrix) }}"
+  # job3:
+  #   name: Job3 ${{ matrix.project }}-${{ matrix.config }}
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix: 
+  #       project: ["A", "B"]
+  #       config: ["C", "D"]
+  #       include:
+  #         - project: "A"
+  #           config: "C"
+  #       exclude:
+  #         - project: "A"
+  #           config: "D"
+  #   steps:
+  #     - run: |
+  #         echo "Matrix: ${{ toJson(matrix) }}"
