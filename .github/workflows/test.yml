@@ -50,11 +50,12 @@ jobs:
                           })
           matrix = {
               "include": tmp_list,
-              "exclude": [{'python_ver': '3.10', 'torch_ver': '2.4.0', 'cuda_ver': '11.8.0'}, 
-                          {'python_ver': '3.10', 'torch_ver': '2.1.2', 'cuda_ver': '12.1.0'}],
+              "exclude": [{"python_ver": "3.10", "torch_ver": "2.4.0", "cuda_ver": "11.8.0"}, 
+                          {"python_ver": "3.10", "torch_ver": "2.1.2", "cuda_ver": "12.1.0"}],
           }
           with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
               f.write(f"matrix={json.dumps(matrix)}\n")
+          print(matrix)
           EOF
         shell: bash
         env:
