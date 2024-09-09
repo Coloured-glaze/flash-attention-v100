@@ -137,7 +137,7 @@ jobs:
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           python setup.py bdist_wheel --dist-dir=dist
           ls -lh dist/*whl 
-          wheel_name=$(ls dist/*whl | xargs -n 1 basename ")
+          wheel_name=$(ls dist/*whl | xargs -n 1 basename)
           ls dist/*whl | xargs -I {} mv {} ${wheel_name}
           echo "wheel_name=${wheel_name}" >> "$GITHUB_ENV"
           echo "wheel_name ${wheel_name}"
