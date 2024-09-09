@@ -61,7 +61,10 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
     steps:
-      - run: echo "Matrix:${{ matrix }}"
+      - run: |
+          echo "Matrix json :${{ needs.set_ver.outputs.matrix }}"
+          echo "Matrix to json: ${{ toJson(matrix) }}"
+          echo "Matrix:${{ matrix }}"
         
   # job3:
   #   name: Job3 ${{ matrix.project }}-${{ matrix.config }}
