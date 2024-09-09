@@ -36,9 +36,9 @@ jobs:
       - name: Parse versions
         id: parse_versions
         run: |
-          python_json=$(echo $PYTHON_VERSION | sed 's/;/\\", \\"/g')
-          torch_json=$(echo $TORCH_VERSION | sed 's/;/\\", \\"/g')
-          cuda_json=$(echo $CUDA_VERSION | sed 's/;/\\", \\"/g')
+          python_json=$(echo $PYTHON_VERSION | sed 's/;/\\",\\"/g')
+          torch_json=$(echo $TORCH_VERSION | sed 's/;/\\",\\"/g')
+          cuda_json=$(echo $CUDA_VERSION | sed 's/;/\\",\\"/g')
 
           python_ver_json=[\\\"$python_json\\\"]
           torch_ver_json=[\\\"$torch_json\\\"]

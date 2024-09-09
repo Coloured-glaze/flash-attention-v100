@@ -1,0 +1,56 @@
+
+name: test
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'branch name or version tag or commit hash: main / v0.0.1 / acdefg'
+        default: 'main'
+        required: true
+        type: string
+      python_version:
+        description: 'python_version: multiple versions separated by ;'
+        default: '3.10'
+        required: true
+        type: string
+      torch_version:
+        description: 'torch_version: multiple versions separated by ;'
+        default: '2.1.2;2.4.0'
+        required: true
+        type: string
+      cuda_version:
+        description: 'cuda_version: multiple versions separated by ;'
+        default: '11.8.0;12.1.0'
+        required: true
+        type: string
+
+jobs:
+  set_ver:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.parse_versions.outputs.matrix }}
+    steps:
+      - name: Parse versions
+        id: parse_versions
+        run: |
+          echo "matrix={\"include\":[{\"project\":\"foo\"}],\"python-version\":[\"3.10\"],\"torch-version\":[\"2.1.2\",\"2.4.0\"],\"cuda-version\":[\"11.8.0\",\"12.1.0\"]}"
+          echo "$matrix" >> $GITHUB_OUTPUT
+          echo "$matrix"
+        env:
+          PYTHON_VERSION: ${{ inputs.python_version }}
+          TORCH_VERSION: ${{ inputs.torch_version }}  
+          CUDA_VERSION: ${{ inputs.cuda_version }}
+
+  wheel:
+    name: ${{ matrix.os }} py${{ matrix.python-version }}-pt${{ matrix.torch-version }}+cu${{ matrix.cuda-version}}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
