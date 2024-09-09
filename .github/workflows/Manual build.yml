@@ -109,6 +109,12 @@ jobs:
           method: 'network' 
           # "local" or "network" 
 
+      - name: Format CUDA version
+        run: |
+          cuda_ver=$(echo ${{ matrix.cuda_ver }} | sed 's/\.//g' | sed 's/0//g')
+          echo "Format CUDA version is ${cuda_ver}"
+          echo "cuda_fmt_ver=${cuda_ver}" >> $GITHUB_ENV
+
       - name: Install PyTorch ${{ matrix.torch_ver }}+cu${{ env.cuda_fmt_ver }}
         run: |
           pip config set global.index-url https://pypi.org/simple
@@ -116,12 +122,6 @@ jobs:
           pip install --no-cache-dir torch==${{ matrix.torch_ver }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_fmt_ver }}
           python --version
           python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print(cpp_extension.CUDA_HOME)"
-
-      - name: Format CUDA version
-        run: |
-          cuda_ver=$(echo ${{ matrix.cuda_ver }} | sed 's/\.//g' | sed 's/0//g')
-          echo "Format CUDA version is ${cuda_ver}"
-          echo "cuda_fmt_ver=${cuda_ver}" >> $GITHUB_ENV
 
       - name: Print CUDA version
         run: |
