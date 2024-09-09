@@ -35,3 +35,16 @@ cuda_out = flash_attn_func(q, k, v, sm_scale, causal)
 
 - [Flash-Attention](https://github.com/Dao-AILab/flash-attention)
 - [cutlass](https://github.com/NVIDIA/cutlass)
+
+
+
+Manual Build Wheel Package
+Error when evaluating 'strategy' for job 'wheel'. 
+
+python_ver=["3.10"]
+torch_ver=["2.1.2", "2.4.0"]
+cuda_ver=["11.8.0", "12.1.0"]
+
+python-version: ${{ fromJSON(needs.set-matrix.outputs.python_ver) }}
+
+Error parsing fromJson, Error reading JToken from JsonReader. Path '', line 0, position 0., Unexpected value '',
