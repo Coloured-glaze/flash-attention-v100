@@ -33,8 +33,7 @@ jobs:
         id: parse_versions
         run: |
           echo "matrix={\"include\":[{\"project\":\"foo\"}],\"python-version\":[\"3.10\"],\"torch-version\":[\"2.1.2\",\"2.4.0\"],\"cuda-version\":[\"11.8.0\",\"12.1.0\"]}"
-          # echo ::set-output name=matrix::${matrix}
-          echo matrix=${matrix} >> "$GITHUB_OUTPUT"
+          echo matrix=${matrix} >> "$GITHUB_ENV"
           echo "${matrix}"
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
@@ -42,8 +41,8 @@ jobs:
           CUDA_VERSION: ${{ inputs.cuda_version }}
 
   wheel:
-    needs: set_ver
     runs-on: ubuntu-latest
+    needs: set_ver
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,6 +51,5 @@ jobs:
 
       - name: Debug matrix
         run: |
-          echo "Matrix: ${{ needs.set_ver.steps.parse_versions.outputs.matrix }}"
-          echo "Matrix: ${{ needs.set_ver.parse_versions.outputs.matrix }}"
-          echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
+          echo "Matrix: ${{ env.matrix }}"
+          echo "Matrix: ${{ needs.set_ver.env.matrix }}"
