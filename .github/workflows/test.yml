@@ -35,7 +35,8 @@ jobs:
         id: parse_versions
         run: |
           echo "matrix={\"include\":[{\"project\":\"foo\"}],\"python-version\":[\"3.10\"],\"torch-version\":[\"2.1.2\",\"2.4.0\"],\"cuda-version\":[\"11.8.0\",\"12.1.0\"]}"
-          echo ::set-output name=branch::${matrix}
+          echo ::set-output name=matrix::${matrix}
+          # echo matrix=${matrix} >> "$GITHUB_OUTPUT"
           echo "${matrix}"
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
