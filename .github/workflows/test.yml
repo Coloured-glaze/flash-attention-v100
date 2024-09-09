@@ -10,18 +10,18 @@ on:
         required: true
         type: string
       python_version:
-        description: 'python_version: multiple versions separated by ;'
+        description: 'python_version: multiple versions separated by ,'
         default: '3.10'
         required: true
         type: string
       torch_version:
-        description: 'torch_version: multiple versions separated by ;'
-        default: '2.1.2;2.4.0'
+        description: 'torch_version: multiple versions separated by ,'
+        default: '2.1.2,2.4.0'
         required: true
         type: string
       cuda_version:
-        description: 'cuda_version: multiple versions separated by ;'
-        default: '11.8.0;12.1.0'
+        description: 'cuda_version: multiple versions separated by ,'
+        default: '11.8.0,12.1.0'
         required: true
         type: string
 
@@ -39,17 +39,13 @@ jobs:
           echo "${matrix}"
 
   wheel:
+    name: ${{ matrix.project }}
     needs: set_ver
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix: ${{ fromJSON(needs.job1.outputs.matrix) }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.version }}
-
       - name: Debug matrix
-        run: |
-          echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
-          echo "Matrix Json: ${{ fromJson(needs.set_ver.outputs.matrix) }}
-
+        run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
