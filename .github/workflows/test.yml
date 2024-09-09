@@ -34,11 +34,9 @@ jobs:
       - name: Parse versions
         id: parse_versions
         run: |
-          echo "matrix={\"include\":[{\"project\":\"foo\"}]}"
+          echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
           echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
           echo "${matrix}"
-        env:
-          matrix: "{\"include\":[{\"project\":\"foo\"}]}"
 
   wheel:
     needs: set_ver
@@ -53,3 +51,5 @@ jobs:
       - name: Debug matrix
         run: |
           echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
+          echo "Matrix Json: ${{ fromJson(needs.set_ver.outputs.matrix) }}
+
