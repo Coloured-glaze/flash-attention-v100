@@ -115,7 +115,7 @@ jobs:
           pip install setuptools==68.0.0 ninja packaging wheel numpy<2 
           pip install --no-cache-dir torch==${{ matrix.torch_ver }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_fmt_ver }}
           python --version
-          python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print (cpp_extension.CUDA_HOME)"
+          python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print(cpp_extension.CUDA_HOME)"
 
       - name: Format CUDA version
         run: |
