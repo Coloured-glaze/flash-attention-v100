@@ -43,14 +43,16 @@ jobs:
           CUDA_VERSION: ${{ inputs.cuda_version }}
 
   wheel:
-    name: ${{ matrix.os }} py${{ matrix.python-version }}-pt${{ matrix.torch-version }}+cu${{ matrix.cuda-version}}
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
-
+    needs: set_ver
+    name: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.version }}
+
+      - name: Debug matrix
+        run: |
+          echo "Matrix: ${{ needs.set_ver.outputs.matrix }}"
+
