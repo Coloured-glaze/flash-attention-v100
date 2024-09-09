@@ -28,13 +28,8 @@ on:
         type: string
 
 jobs:
-  set-matrix:
+  set_ver:
     runs-on: ubuntu-latest
-    outputs:
-      python-versions: ${{ steps.parse_versions.outputs.python_ver_json }} 
-      torch-versions: ${{ steps.parse_versions.outputs.torch_ver_json }} 
-      cuda-versions: ${{ steps.parse_versions.outputs.cuda_ver_json }}  
-        
     steps:
       - name: Parse versions
         id: parse_versions
@@ -43,40 +38,30 @@ jobs:
           torch_json=$(echo $TORCH_VERSION | sed 's/;/", "/g')
           cuda_json=$(echo $CUDA_VERSION | sed 's/;/", "/g')
 
-          echo "python_ver_json=[\"$python_json\"]" >> $GITHUB_ENV
-          echo "torch_ver_json=[\"$torch_json\"]" >> $GITHUB_ENV
-          echo "cuda_ver_json=[\"$cuda_json\"]" >> $GITHUB_ENV
-
+          echo "python_ver_json=[\"$python_json\"]" >> "$GITHUB_OUTPUT"
+          echo "torch_ver_json=[\"$torch_json\"]" >> "$GITHUB_OUTPUT"
+          echo "cuda_ver_json=[\"$cuda_json\"]" >> "$GITHUB_OUTPUT"
+          
           echo "python_ver=[\"$python_json\"]"
           echo "torch_ver=[\"$torch_json\"]"
           echo "cuda_ver=[\"$cuda_json\"]"
+        shell: bash
         env:
           PYTHON_VERSION: ${{ inputs.python_version }}
           TORCH_VERSION: ${{ inputs.torch_version }}  
           CUDA_VERSION: ${{ inputs.cuda_version }}
-      
-      - name: print versions
-        id: print_versions
-        run: |
-          echo "${{ needs.set-matrix.outputs.python_ver_json }}"
-          echo "${{ needs.set-matrix.outputs.torch_ver_json }}"
-          echo "${{ needs.set-matrix.outputs.cuda_ver_json }}"
-          echo "${{ env.python_ver }}"
-          echo "${{ env.torch_ver_json }}"
-          echo "${{ env.cuda_ver_json }}"
 
   wheel:
-
     name: ${{ matrix.os }} py${{ matrix.python-version }}-pt${{ matrix.torch-version }}+cu${{ matrix.cuda-version }}
-    needs: set-matrix
+    needs: set_ver
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
           os: [ubuntu-24.04]
-          python-version: ${{ fromJSON(needs.set-matrix.outputs.python_ver_json) }}
-          torch-version: ${{ fromJSON(needs.set-matrix.outputs.torch_ver_json) }}
-          cuda-version: ${{ fromJSON(needs.set-matrix.outputs.cuda_ver_json) }}
+          python-version: ${{ fromJSON(needs.set_ver.outputs.python_ver_json) }}
+          torch-version: ${{ fromJSON(needs.set_ver.outputs.torch_ver_json) }}
+          cuda-version: ${{ fromJSON(needs.set_ver.outputs.cuda_ver_json) }}
           # include:
           exclude:
             - torch-version: '2.4.0'
