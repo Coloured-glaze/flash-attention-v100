@@ -75,7 +75,7 @@ jobs:
           CUDA_VERSION: ${{ inputs.cuda_version }}
         
   wheel:
-    name: Build wheel ${{ inputs.os_version }}-py${{ matrix.python_ver }}-th${{ matrix.torch_ver }}-cu${{ matrix.cuda_ver }}
+    name: ${{ inputs.os_version }}-py${{ matrix.python_ver }}-th${{ matrix.torch_ver }}-cu${{ matrix.cuda_ver }}
     needs: set_ver
     runs-on: ${{ inputs.os_version }}
 
@@ -125,7 +125,7 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch_ver }}+cu${{ env.cuda_fmt_ver }}
         run: |
           pip config set global.index-url https://pypi.org/simple
-          pip install setuptools==68.0.0 ninja packaging wheel numpy
+          pip install setuptools==68.0.0 ninja packaging wheel numpy<2 
           pip install --no-cache-dir torch==${{ matrix.torch_ver }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_fmt_ver }}
           python --version
           python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print (cpp_extension.CUDA_HOME)"
@@ -135,10 +135,7 @@ jobs:
           export FORCE_CUDA="1"
           export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
-          pip install wheel numpy==2.1.1 pybind11>=2.12
           python setup.py bdist_wheel --dist-dir=dist
-
           wheel_name=$(ls dist/*whl | xargs -n 1 basename ")
           ls dist/*whl | xargs -I {} mv {} ${wheel_name}
           echo "wheel_name=${wheel_name}" >> $GITHUB_ENV
