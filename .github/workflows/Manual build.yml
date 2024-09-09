@@ -101,7 +101,7 @@ jobs:
           python-version: ${{ matrix.python_ver }}
       
       - name: Install CUDA ${{ matrix.cuda_ver }}
-        uses: Jimver/cuda-toolkit@v0.2.16
+        uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda_ver }}
