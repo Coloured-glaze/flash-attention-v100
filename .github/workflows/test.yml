@@ -36,9 +36,6 @@ jobs:
         run: |
           python <<EOF
           import os, json
-          py_ver = os.getenv('PYTHON_VERSION').split(';')
-          torch_versions = os.getenv('TORCH_VERSION').split(';')
-          cuda_versions = os.getenv('CUDA_VERSION').split(';')
           py_version = os.getenv("PYTHON_VERSION").split(";")
           torch_versions = os.getenv("TORCH_VERSION").split(";")
           cuda_versions = os.getenv("CUDA_VERSION").split(";")
