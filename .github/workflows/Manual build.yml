@@ -74,8 +74,8 @@ jobs:
           TORCH_VERSION: ${{ inputs.torch_version }}  
           CUDA_VERSION: ${{ inputs.cuda_version }}
         
-  job2:
-    name: Job2 ${{ matrix.python_ver }}-${{ matrix.torch_ver }}-${{ matrix.cuda_ver }}
+  wheel:
+    name: Build wheel ${{ matrix.python_ver }}-${{ matrix.torch_ver }}-${{ matrix.cuda_ver }}
     needs: set_ver
     runs-on: ${{ inputs.os_version }}
 
@@ -101,7 +101,7 @@ jobs:
           python-version: ${{ matrix.python_ver }}
       
       - name: Install CUDA ${{ matrix.cuda_ver }}
-        uses: Jimver/cuda-toolkit@v0.2.14
+        uses: Coloured-glaze/cuda-toolkit@dev
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda_ver }}
