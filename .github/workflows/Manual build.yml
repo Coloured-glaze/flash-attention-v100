@@ -27,8 +27,8 @@ on:
         required: true
         type: string
       os_version:
-        description: 'os_version: ubuntu-latest, ubuntu-24.04'
-        default: 'ubuntu-24.04'
+        description: 'os_version: ubuntu-latest, ubuntu-24.04, ubuntu-20.04'
+        default: 'ubuntu-20.04'
         required: true
         type: string
 
