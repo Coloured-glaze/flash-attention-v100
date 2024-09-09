@@ -109,7 +109,7 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch_ver }}+cu${{ env.cuda_fmt_ver }}
         run: |
           pip config set global.index-url https://pypi.org/simple
-          pip install setuptools==68.0.0 ninja packaging wheel numpy<2 
+          pip install setuptools==68.0.0 ninja packaging wheel numpy==1.26.4 
           pip install --no-cache-dir torch==${{ matrix.torch_ver }} --index-url https://download.pytorch.org/whl/cu${{ env.cuda_fmt_ver }}
           python --version
           python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); from torch.utils import cpp_extension; print(cpp_extension.CUDA_HOME)"
