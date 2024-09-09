@@ -143,16 +143,9 @@ jobs:
           echo "wheel_name ${wheel_name}"
         shell: bash
 
-      - name: Get tag from GITHUB_REF
-        id: tag
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          echo "release_tag=${tag}" >> "$GITHUB_OUTPUT"
-          echo "Release tag:${tag}"
-
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}-${{ inputs.version }}-${{ matrix.python_ver }}-${{ matrix.torch_ver }}-${{ env.cuda_fmt_ver }}
+          tag_name: ${{ inputs.version }}-py${{ matrix.python_ver }}-th${{ matrix.torch_ver }}-cu${{ env.cuda_fmt_ver }}
           files: |
             ${{ env.wheel_name }}
         env:
