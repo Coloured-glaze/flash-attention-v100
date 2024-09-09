@@ -30,6 +30,8 @@ on:
 jobs:
   set_ver:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.parse_versions.outputs.matrix }}
     steps:
       - name: Parse versions
         id: parse_versions
@@ -42,7 +44,8 @@ jobs:
           torch_ver_json=[\\\"$torch_json\\\"]
           cuda_ver_json=[\\\"$cuda_json\\\"]
           
-          echo "matrix={\"python-version\":$python_ver_json, \"torch-version\":$torch_ver_json, \"cuda-version\":$cuda_ver_json}" >> $GITHUB_OUTPUT
+          echo "matrix={\"python-version\":$python_ver_json, \"torch-version\":$torch_ver_json, \"cuda-version\":$cuda_ver_json}"
+          echo "$matrix" >> $GITHUB_OUTPUT
           echo "$matrix"
         shell: bash
         env:
@@ -56,17 +59,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      matrix:
-          os: [ubuntu-24.04]
-          python-version: ["3.10"]
-          torch-version: ["2.1.2"]
-          cuda-version: ["11.8.0"]
-          # include:
-          exclude:
-            - torch-version: '2.4.0'
-              cuda-version: '11.8.0'
-            - torch-version: '2.1.2'
-              cuda-version: '12.1.0'
+      matrix: ${{ fromJSON(needs.set_ver.outputs.matrix) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
