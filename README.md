@@ -18,6 +18,8 @@ git clone --recursive https://github.com/Coloured-glaze/flash-attention-v100 --d
 
 cd flash-attention-v100
 
+pip install ninja
+
 python setup.py install
 ```
 
